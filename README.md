@@ -4,7 +4,7 @@ Travail pratique 01 dans le cadre du cours Technologies de l'inforoute (INF 3740
 Ce travail consiste à développer une plateforme serveur (back-end) pour la collecte et la gestion de données issues du site de données ouvertes du gouvernement du Quebec (www.donneesquebec.ca)
 
 ## 🎯 Objectif
-- Moissonner des données depuis Données Québecd
+- Moissonner des données depuis Données Québec
 - Structurer et stocker ces données dans une base relationnelle
 - Exposer les données via des APIs REST et GraphQL sécurisées
 - Offrir une interface d’administration et une page de statistiques
