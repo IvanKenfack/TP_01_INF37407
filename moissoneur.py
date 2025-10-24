@@ -1,24 +1,29 @@
-
 import requests
 
-def fetch_ckan_metadata(base_url, filters=None):
-    """
-    Récupère les métadonnées depuis une instance CKAN via l'API.
-    :param base_url: URL de base de l'instance CKAN (ex: https://donneesquebec.ca)
-    :param filters: dictionnaire de filtres (tags, groupes, etc.)
-    :return: liste de jeux de données normalisés
-    """
-    package_list_url = f"{base_url}/api/3/action/package_list"
-    response = requests.get(package_list_url)
-    datasets = response.json().get("result", [])
+# Fonction pour moissonner des jeux de données à partir d'une API donnée
+def moissoneurJeuDeDonnées(source, mot_clé="", nombre_de_jeux=10):
 
-    metadata_list = []
-    for dataset_id in datasets:
-        show_url = f"{base_url}/api/3/action/package_show?id={dataset_id}"
-        data = requests.get(show_url).json().get("result", {})
-        if filters:
-            if not any(tag["name"] in filters.get("tags", []) for tag in data.get("tags", [])):
-                continue
-        metadata_list.append(normalize_metadata(data, base_url))
+    # Effectuer une requête GET à l'API avec le mot clé
+    r = requests.get(source, params={"q": mot_clé})
+    
+    #si la requête reussie, on parse les données
+    if r.status_code == 200:
+        données = r.json()
+        return données.get("result", {}).get("results", [])
+    
+    else:
+        print(f"La requette a échoué avec le code d'érreur:\n {r.status_code}") 
+        return []
 
-    return metadata_list
+
+datasets = moissoneurJeuDeDonnées(
+    source="https://www.donneesquebec.ca/recherche/api/3/action/package_search",
+    mot_clé="fleuve Saint-Laurent",
+    nombre_de_jeux=5
+)
+
+for ds in datasets:
+    print(f"Title: {ds['title']}")
+    print(f"Description: {ds['notes']}")
+    print(f"URL: https://www.donneesquebec.ca/recherche/dataset/{ds['name']}")
+    print("-" * 40)

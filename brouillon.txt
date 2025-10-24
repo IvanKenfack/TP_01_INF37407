@@ -8,4 +8,7 @@
  Saint Laurent est le groupe "environnement-ressources-naturelles-energie". En combinant ce groupe avec le mot clé  "fleuve-Saint Laurent", nous
  obtenons des jeux de données pertinents pour notre projet.
 
- Il ne reste plus qu'a analyser chaque jeu de données à fins de definir un model commun pour leur intégration dans notre base de données.
+ Il ne reste plus qu'a analyser chaque jeu de données obtenues à fins de definir un model commun pour leur intégration dans notre base de données.
+
+
+ 
