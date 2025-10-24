@@ -1,0 +1,11 @@
+ *********************************************************
+ ********                                        *********
+ ********  Définition des filtres de moissonage  *********
+ ********                                        *********
+ *********************************************************
+
+ Le catalogue donnéesQuébec est diviser en 10 groupes de jeu de données. Le groupe le plus susceptible de contenir des données sur le fleuve 
+ Saint Laurent est le groupe "environnement-ressources-naturelles-energie". En combinant ce groupe avec le mot clé  "fleuve-Saint Laurent", nous
+ obtenons des jeux de données pertinents pour notre projet.
+
+ Il ne reste plus qu'a analyser chaque jeu de données à fins de definir un model commun pour leur intégration dans notre base de données.
