@@ -25,7 +25,7 @@ Ce travail consiste à développer une plateforme serveur (back-end) pour la col
 - Git + GitHub (gestion de version)
 
 ## 🗂️ Structure du projet
-Le projet est divisé en plusieurs applications Django :
+Le projet est divisé en plusieurs applications Django et script python :
 - `moissoneur` : script python de moissonnage
 - `catalogue` : modèle rélationnel
 - `api` : endpoints REST et GraphQL
