@@ -31,7 +31,7 @@ class Ressource(models.Model):
     type_ressource = models.CharField(max_length=100,blank=True)
     url  = models.CharField(max_length=200,blank=True)
     taille_ressource = models.IntegerField(null=True,blank=True)
-
+    
     def __str__(self):
         return self.nom
     
