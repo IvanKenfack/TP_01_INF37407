@@ -5,10 +5,16 @@ def moissoneurJeuDeDonnées(source, mot_clé="", nombre_de_jeux=10):
 
     # Effectuer une requête GET à l'API avec le mot clé
     r = requests.get(source, params={"q": mot_clé})
+    print()
+    print(f"Requête effectuée à l'URL: {r.url}")
+    print()
+    print(r.text)
+    print()
     
     #si la requête reussie, on parse les données
     if r.status_code == 200:
         données = r.json()
+        # Retourner la liste des jeux de données
         return données.get("result", {}).get("results", [])
     
     else:
@@ -26,4 +32,4 @@ for ds in datasets:
     print(f"Title: {ds['title']}")
     print(f"Description: {ds['notes']}")
     print(f"URL: https://www.donneesquebec.ca/recherche/dataset/{ds['name']}")
-    print("-" * 40)
+    print("-" * 50)
