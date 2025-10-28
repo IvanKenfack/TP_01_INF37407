@@ -14,32 +14,37 @@ from catalogueDonnées.models import Jeu_De_Donnée, Ressource, Mot_Clé, Organi
 
 
 # Fonction pour moissonner des jeux de données à partir d'une API donnée
-def moissoneurJeuDeDonnées(source, mot_clé="", nombre_de_jeux=None, max_rows=100, verbose=False):
-    """
-    Récupère les jeux correspondant à mot_clé depuis l'API CKAN (package_search).
-    - nombre_de_jeux=None -> récupère tous les résultats disponibles (jusqu'à épuisement de la pagination)
-    - max_rows limite le nombre d'items par requête (CKAN accepte typiquement >=100)
-    - verbose affiche les URLs de requête
-    """
+def moissoneurJeuDeDonnées(source, mot_clé="", nombre_de_jeux=None,afficherRequette=True):
+
     résultats = []
+
+    # Le décalage dans le résultat complet à partir duquel l’ensemble des ensembles de données retournés doit commencer.
     start = 0
-    # s'assurer que rows est un entier raisonnable
-    rows = max(1, int(max_rows))
+    
+    # Le paramètre rows dans CKAN détermine le nombre d'items par page(données renvoyées par requête)
+    rows = 100
 
     while True:
-        # si un nombre de jeux est demandé, ajuster rows pour ne pas surcharger
-        if nombre_de_jeux:
-            rows = min(rows, max(1, nombre_de_jeux - len(résultats)))
 
-        params = {"q": mot_clé, "rows": rows, "start": start}
+        # Construction des paramètres de la requête
+        
+        if source == "https://borealisdata.ca/api/search":
+            params = {"q": mot_clé, "type": "dataset", "rows": rows, "start": start}
+
+        else:
+            params = {"q": mot_clé, "rows": rows, "start": start}
+
         try:
             r = requests.get(source, params=params, timeout=15)
+            print()
         except requests.exceptions.RequestException as e:
             print(f"Erreur réseau: {e}")
             break
 
-        if verbose:
+        if afficherRequette:
+            print()
             print(f"Requête: {r.url}")
+            print()
 
         if r.status_code != 200:
             print(f"La requête a échoué avec le code: {r.status_code}")
@@ -51,35 +56,61 @@ def moissoneurJeuDeDonnées(source, mot_clé="", nombre_de_jeux=None, max_rows=1
             print("Réponse non JSON reçue")
             break
 
-        page = données.get("result", {}).get("results", [])
+        #Si la source est Borealis, les résultats sont dans une structure différente
+        if source == "https://borealisdata.ca/api/search":
+            page = données.get("data", {}).get("items", [])
+        else:
+            page = données.get("result", {}).get("results", [])
+
         if not page:
             # plus de résultats
             break
-
+        
+        # Ajout des résultats de la page courante
         résultats.extend(page)
+        print(f"Récupéré {len(résultats)} jeux de données jusqu'à présent.")
+
+        # Mise à jour du décalage pour la prochaine page
         start += len(page)
+        print(f"Prochain start: {start}")
 
-        # si on a récupéré le nombre demandé, ou si la page est incomplète -> fin
-        if nombre_de_jeux and len(résultats) >= nombre_de_jeux:
-            break
-        if len(page) < rows:
-            break
+        # Si la source est Borealis, le comptage total est différent
+        if source == "https://borealisdata.ca/api/search": 
+            print(f"Nombre de jeux: {données.get("data", {}).get("total_count")}")
+            if len(résultats) >= données.get("data", {}).get("total_count"):
+                break
 
-    return résultats if nombre_de_jeux is None else résultats[:nombre_de_jeux]
+        else:
+            print(f"Nombre de jeux: {données.get("result", {}).get("count")}")
+
+             # si on a récupéré le nombre demandé -> fin
+            if len(résultats) >= données.get("result", {}).get("count"):
+                break
+
+
+    return résultats
+
+
+sourceAPI = {
+    "DonneesQuebec":"https://www.donneesquebec.ca/recherche/api/3/action/package_search",
+    "CanWIN":"https://canwin-datahub.ad.umanitoba.ca/data/api/3/action/package_search",
+    "OpenGouv":"https://open.canada.ca/data/api/action/package_search",
+    "Borealis" : "https://borealisdata.ca/api/search"
+}
 
 
 jeuDeDonnées = moissoneurJeuDeDonnées(
-    source="https://www.donneesquebec.ca/recherche/api/3/action/package_search",
-    mot_clé="fleuve Saint-Laurent",
-    nombre_de_jeux=5
+    source=sourceAPI["Borealis"],
+    mot_clé="fleuve Saint-Laurent"
 )   
 
+"""
 for jeuDeDonnée in jeuDeDonnées:
-    print(f"Title: {jeuDeDonnée['title']}")
-    print(f"Description: {jeuDeDonnée['notes']}")
-    print(f"URL: https://www.donneesquebec.ca/recherche/dataset/{jeuDeDonnée['name']}")
+    print(f"name: {jeuDeDonnée['name']}")
+    print(f"Description: {jeuDeDonnée['description']}")
+    print(f"URL: {jeuDeDonnée['url']}")
     print("-" * 50)
-
+"""
 
 def stockageJeuDeDonnée(jeuDeDonnée):
     # Fonction pour stocker un jeu de données dans la base de données Django
