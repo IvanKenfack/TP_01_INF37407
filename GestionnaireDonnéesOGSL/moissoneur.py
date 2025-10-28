@@ -9,8 +9,19 @@ if PROJECT_ROOT not in sys.path:
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'GestionnaireDonnéesOGSL.settings')
 django.setup()
 
-# Importation des modèles Django
+# Importation des modèles Django après la configuration de Django pour éviter les erreurs d'importation
 from catalogueDonnées.models import Jeu_De_Donnée, Ressource, Mot_Clé, Organisation, Group
+from django.utils.dateparse import parse_datetime
+from django.utils.timezone import make_aware,is_naive
+
+
+
+sourceAPI = {
+    "DonneesQuebec":"https://www.donneesquebec.ca/recherche/api/3/action/package_search",
+    "CanWIN":"https://canwin-datahub.ad.umanitoba.ca/data/api/3/action/package_search",
+    "OpenGouv":"https://open.canada.ca/data/api/action/package_search",
+    "Borealis" : "https://borealisdata.ca/api/search"
+}
 
 
 # Fonction pour moissonner des jeux de données à partir d'une API donnée
@@ -23,7 +34,7 @@ def moissoneurJeuDeDonnées(source, mot_clé="", nombre_de_jeux=None,afficherReq
     
     # Le paramètre rows dans CKAN détermine le nombre d'items par page(données renvoyées par requête)
     rows = 100
-
+  
     while True:
 
         # Construction des paramètres de la requête
@@ -87,33 +98,113 @@ def moissoneurJeuDeDonnées(source, mot_clé="", nombre_de_jeux=None,afficherReq
             if len(résultats) >= données.get("result", {}).get("count"):
                 break
 
-
+    print(f"Moissonnage terminé. Total des jeux de données récupérés: {len(résultats)}")
+    print()
+    print("-" * 80)
+    print()
+    print()
     return résultats
 
+# Fonction pour parser les dates CKAN en objets datetime de Django
+def parsageDateCKAN(dateString):
+    if dateString:
+        dt = parse_datetime(dateString)
+        if dt and is_naive(dt):
+            dt = make_aware(dt)
+        return dt
+    return None
 
-sourceAPI = {
-    "DonneesQuebec":"https://www.donneesquebec.ca/recherche/api/3/action/package_search",
-    "CanWIN":"https://canwin-datahub.ad.umanitoba.ca/data/api/3/action/package_search",
-    "OpenGouv":"https://open.canada.ca/data/api/action/package_search",
-    "Borealis" : "https://borealisdata.ca/api/search"
-}
 
 
-jeuDeDonnées = moissoneurJeuDeDonnées(
-    source=sourceAPI["Borealis"],
+def stockageJeuDeDonnée():
+
+    jeuDeDonnées = moissoneurJeuDeDonnées(
+    source=sourceAPI["DonneesQuebec"],
     mot_clé="fleuve Saint-Laurent"
-)   
+    )
 
-"""
-for jeuDeDonnée in jeuDeDonnées:
-    print(f"name: {jeuDeDonnée['name']}")
-    print(f"Description: {jeuDeDonnée['description']}")
-    print(f"URL: {jeuDeDonnée['url']}")
-    print("-" * 50)
-"""
+    i = 1
+    for jeuDeDonnée in jeuDeDonnées:
+        print()
+        print()
+        print(f"Stockage du Jeu de donnée {i}:")
+        print()
 
-def stockageJeuDeDonnée(jeuDeDonnée):
-    # Fonction pour stocker un jeu de données dans la base de données Django
-    # À implémenter: création des instances de Jeu_De_Donnée, Ressource, Mot_Clé, Organisation
-    
-    pass
+        org = Organisation.objects.get_or_create(
+            nom=jeuDeDonnée.get("organization", {}).get("name",""),
+            titre=jeuDeDonnée.get("organization", {}).get("title",""),
+            statut_dApprobation=jeuDeDonnée.get("organization", {}).get("approval_status",""),
+            état=jeuDeDonnée.get("organization", {}).get("state",""),
+        # [0] pour obtenir l'instance créée uniquement
+        )[0]
+
+        j = Jeu_De_Donnée.objects.create(
+            organisation=org,
+            nom=jeuDeDonnée.get("name",""),
+            auteur=jeuDeDonnée.get("author",""),
+            date_création_métadonnées=parsageDateCKAN(jeuDeDonnée.get("metadata_created","")),
+            date_création=parsageDateCKAN(jeuDeDonnée.get("metadata_created","")),
+            nombre_ressources=jeuDeDonnée.get("num_resources",0),
+            nombre_mots_clés=jeuDeDonnée.get("num_tags",0),
+            email_auteur=jeuDeDonnée.get("author_email",""),
+            url_licence=jeuDeDonnée.get("license_url",""),
+        )
+        ressources_data = jeuDeDonnée.get("resources", [])
+        ressources_objs = [
+            Ressource(
+                jeu_de_donnée=j,
+                nom=rdata.get("name",""),
+                description=rdata.get("description",""),
+                format_ressource=rdata.get("format",""),
+                url=rdata.get("url",""),
+                taille_ressource=rdata.get("size",0),
+                type_ressource=rdata.get("resource_type",""),
+                date_création=parsageDateCKAN(rdata.get("created", None)),
+                dernière_modification=parsageDateCKAN(rdata.get("last_modified", None)),
+            )
+            for rdata in ressources_data
+        ]
+
+        # Insérer en une ou plusieurs requêtes (batch_size aide pour des très grandes listes)
+        if ressources_objs:
+            Ressource.objects.bulk_create(ressources_objs, batch_size=100)
+
+        motsClés = jeuDeDonnée.get("tags", [])
+        mots_objs = [
+            Mot_Clé(
+                jeu_de_donnée=j,
+                nom_dAffichage=motClé.get("display_name",""),
+                mot_clé=motClé.get("name",""),
+                état=motClé.get("state",""), 
+            ) 
+            for motClé in motsClés
+        ]
+        if mots_objs:
+            Mot_Clé.objects.bulk_create(mots_objs, batch_size=100)
+
+        groups = jeuDeDonnée.get("groups", [])
+        groups_objs = [
+            Group(
+                jeu_de_donnée=j,
+                nom=group.get("name",""),
+                titre=group.get("title",""),
+                description=group.get("description",""),
+            )
+            for group in groups
+        ]
+
+        if groups_objs:
+            Group.objects.bulk_create(groups_objs, batch_size=100)
+
+        print()
+        print(f"Jeu de donnée '{j.nom}' stocké avec {len(ressources_objs)} ressources, {len(mots_objs)} mots-clés et {len(groups_objs)} groupes.")
+        print()
+        print("-" * 50)
+        i+=1
+    print()
+    print("Stockage terminé pour tous les jeux de données moissonnés.")
+
+    return  
+
+if __name__ == "__main__":
+    stockageJeuDeDonnée()
