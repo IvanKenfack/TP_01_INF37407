@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     'catalogueDonnées.apps.CataloguedonnéesConfig',
     'rest_framework',
     'apiREST.apps.ApirestConfig',
+    'drf_yasg',
+    'graphene_django',
 ]
 
 MIDDLEWARE = [
