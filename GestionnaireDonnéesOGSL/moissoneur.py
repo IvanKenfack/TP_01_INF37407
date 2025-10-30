@@ -119,7 +119,7 @@ def parsageDateCKAN(dateString):
 def stockageJeuDeDonnée():
 
     jeuDeDonnées = moissoneurJeuDeDonnées(
-    source=sourceAPI["DonneesQuebec"],
+    source=sourceAPI["OpenGouv"],
     mot_clé="fleuve Saint-Laurent"
     )
 
@@ -131,10 +131,10 @@ def stockageJeuDeDonnée():
         print()
 
         org = Organisation.objects.get_or_create(
-            nom=jeuDeDonnée.get("organization", {}).get("name",""),
-            titre=jeuDeDonnée.get("organization", {}).get("title",""),
-            statut_dApprobation=jeuDeDonnée.get("organization", {}).get("approval_status",""),
-            état=jeuDeDonnée.get("organization", {}).get("state",""),
+            nom=(jeuDeDonnée.get("organization") or {}).get("name",""),
+            titre=(jeuDeDonnée.get("organization") or {}).get("title",""),
+            statut_dApprobation=(jeuDeDonnée.get("organization") or {}).get("approval_status",""),
+            état=(jeuDeDonnée.get("organization") or {}).get("state",""),
         # [0] pour obtenir l'instance créée uniquement
         )[0]
 
