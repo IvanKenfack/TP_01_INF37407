@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -31,13 +32,14 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'catalogueDonnées.apps.CataloguedonnéesConfig',
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'catalogueDonnées.apps.CataloguedonnéesConfig',
 ]
 
 MIDDLEWARE = [
@@ -112,7 +114,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Toronto'
 
 USE_I18N = True
 
@@ -124,7 +126,20 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+JAZZMIN_SETTINGS = {
+    "site_title": "Gestionnaire de Données OGSL",
+    "site_header": "Gestionnaire de Données OGSL",
+    "site_brand": "Portail Admin",
+    "welcome_sign": "Bienvenue dans votre interface administrateur",
+    "site_logo": "logo.png",
+    "login_logo": "logo.png",
+    "copyright": "Gestionnaire de Données OGSL",
+}
+
