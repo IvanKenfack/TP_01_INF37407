@@ -7,10 +7,10 @@ class Jeu_De_Donnée(models.Model):
     idJeuDeDonnée = models.AutoField(primary_key=True)
     organisation = models.ForeignKey('Organisation', on_delete=models.CASCADE)
     auteur = models.CharField(max_length=500, blank=True)
-    date_création = models.DateTimeField(6,null=True, blank=True)
+    date_création = models.DateTimeField(null=True, blank=True)
     email_auteur = models.CharField(max_length=500, blank=True)
     url_licence = models.CharField(max_length=500,blank=True)
-    date_création_métadonnées = models.DateTimeField(6,null=True,blank=True)
+    date_création_métadonnées = models.DateTimeField(null=True,blank=True)
     nom = models.CharField(max_length=500,blank=True)
     nombre_ressources = models.IntegerField(null=True,blank=True)
     nombre_mots_clés = models.IntegerField(null=True,blank=True)
@@ -26,7 +26,7 @@ class Ressource(models.Model):
     date_création = models.DateTimeField(6,null=True, blank=True)
     description = models.TextField(2000,blank=True)
     format_ressource = models.CharField(max_length=50,blank=True)
-    dernière_modification = models.DateTimeField(6,null=True, blank=True)
+    dernière_modification = models.DateTimeField(null=True, blank=True)
     nom = models.CharField(max_length=500,blank=True)
     type_ressource = models.CharField(max_length=100,blank=True)
     url  = models.CharField(max_length=500,blank=True)
@@ -70,3 +70,23 @@ class Group(models.Model):
 
     def __str__(self):
         return self.nom
+    
+class ConfigMoisson(models.Model):
+    sourceAPI = (
+
+        ("DonneesQuebec","https://www.donneesquebec.ca/recherche/api/3/action/package_search"),
+        ("CanWIN","https://canwin-datahub.ad.umanitoba.ca/data/api/3/action/package_search"),
+        ("OpenGouv","https://open.canada.ca/data/api/action/package_search"),
+        ("Borealis" , "https://borealisdata.ca/api/search"),
+
+    )
+
+    idConfigMoisson = models.AutoField(primary_key=True)
+    nom = models.CharField(max_length=200)
+    source = models.CharField(max_length=500,choices=sourceAPI)
+    filtres = models.CharField(max_length=300,blank=True)
+    creation = models.DateTimeField(auto_now_add=True)
+    dernier_lancement = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.nom} - {self.source}"

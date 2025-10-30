@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Jeu_De_Donnée, Ressource, Mot_Clé, Organisation, Group
+from .models import Jeu_De_Donnée, Ressource, Mot_Clé, Organisation, Group, ConfigMoisson
 
 
 class Jeu_De_DonnéeAdmin(admin.ModelAdmin):
@@ -30,9 +30,20 @@ class GroupAdmin(admin.ModelAdmin):
     list_editable = ('titre','description',)
     list_per_page = 10
 
+class ConfigMoissonAdmin(admin.ModelAdmin):
+    list_display = ('nom','source','filtres','dernier_lancement','creation',)
+    list_editable = ( 'source','filtres',)
+    list_per_page = 10
+    actions = ['lancer_moisson']
+
+    def lancer_moisson(self, request, queryset):
+        for config in queryset:
+            management.call_command('moissonner', str(config.id))
+        self.message_user(request, "Moissonnage lancé pour les configurations sélectionnées.")
 
 admin.site.register(Jeu_De_Donnée, Jeu_De_DonnéeAdmin)
 admin.site.register(Ressource, RessourceAdmin)
 admin.site.register(Mot_Clé, Mot_CléAdmin)
 admin.site.register(Organisation, OrganisationAdmin)
-admin.site.register(Group, GroupAdmin)
+admin.site.register(Group, GroupAdmin) 
+admin.site.register(ConfigMoisson, ConfigMoissonAdmin)
