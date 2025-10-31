@@ -21,4 +21,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('apiREST.urls')),
     path('gql/', include('graphQL.urls')),
+    path('stats/', include('statistiques.urls')),
 ]

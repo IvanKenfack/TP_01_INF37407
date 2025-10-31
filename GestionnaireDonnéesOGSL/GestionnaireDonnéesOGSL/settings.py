@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'apiREST.apps.ApirestConfig',
     'drf_yasg',
     'graphene_django',
+    'statistiques.apps.StatistiquesConfig',
 ]
 
 MIDDLEWARE = [
@@ -61,7 +62,7 @@ ROOT_URLCONF = 'GestionnaireDonnéesOGSL.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates'),],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
