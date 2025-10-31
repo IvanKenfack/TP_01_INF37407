@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from catalogueDonnées.models import Jeu_De_Donnée, Ressource, Mot_Clé, Organisation, Group
+from catalogueDonnées.models import Jeu_De_Donnee, Ressource, Mot_Cle, Organisation, Group
 
 class RessourceSerializer(serializers.ModelSerializer):
     class Meta:
@@ -8,7 +8,7 @@ class RessourceSerializer(serializers.ModelSerializer):
 
 class MotCléSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Mot_Clé
+        model = Mot_Cle
         fields = '__all__'
 
 class OrganisationSerializer(serializers.ModelSerializer):
@@ -26,23 +26,23 @@ class JeuDeDonnéeSerializer(serializers.ModelSerializer):
 
     organisation = OrganisationSerializer()
     ressources = RessourceSerializer(many=True, source='ressource_set')
-    mot_clés = MotCléSerializer(many=True, source='mot_clé_set')
+    mot_cles = MotCléSerializer(many=True, source='mot_cle_set')
     groups = GroupSerializer(many=True, source='group_set')
     class Meta:
-        model = Jeu_De_Donnée
+        model = Jeu_De_Donnee
         fields = (
-            'idJeuDeDonnée',
+            'idJeuDeDonnee',
             'organisation',
             'nom',
             'auteur',
-            'date_création_métadonnées',
-            'date_création',
+            'date_creation_metadonnees',
+            'date_creation',
             'nombre_ressources',
-            'nombre_mots_clés',
+            'nombre_mots_cles',
             'email_auteur',
             'url_licence',
             'ressources',
-            'mot_clés',
+            'mot_cles',
             'groups',
         )
 

@@ -147,3 +147,7 @@ JAZZMIN_SETTINGS = {
     "copyright": "Gestionnaire de Données OGSL",
 }
 
+GRAPHENE = {
+    "SCHEMA": "graphQL.schema.schema",  
+}
+

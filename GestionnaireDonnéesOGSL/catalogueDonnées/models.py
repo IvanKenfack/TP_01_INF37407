@@ -2,31 +2,37 @@ from django.db import models
 
 #Tout les champs des tables en dehors des clés primaires sont nullable et peuvent être laissés vides pour accommoder les données incomplètes provenant des jeux de données moissonnés.
 
-class Jeu_De_Donnée(models.Model):
+class Jeu_De_Donnee(models.Model):
 
-    idJeuDeDonnée = models.AutoField(primary_key=True)
+    idJeuDeDonnee = models.AutoField(verbose_name='idJeuDeDonnée',primary_key=True)
     organisation = models.ForeignKey('Organisation', on_delete=models.CASCADE)
     auteur = models.CharField(max_length=500, null=True,blank=True)
-    date_création = models.DateTimeField(null=True, blank=True)
+    date_creation = models.DateTimeField(verbose_name='date de création',null=True, blank=True)
     email_auteur = models.CharField(max_length=500, blank=True,null=True,)
     url_licence = models.CharField(max_length=500,blank=True,null=True,)
-    date_création_métadonnées = models.DateTimeField(null=True,blank=True)
+    date_creation_metadonnees = models.DateTimeField(verbose_name='date de création des métadonnées',null=True,blank=True)
     nom = models.CharField(max_length=500,blank=True,null=True,)
     nombre_ressources = models.IntegerField(null=True,blank=True)
-    nombre_mots_clés = models.IntegerField(null=True,blank=True)
+    nombre_mots_cles = models.IntegerField(verbose_name='nombre de mots clés',null=True,blank=True)
 
     def __str__(self):
         return self.nom 
+    
+    class Meta:
+        db_table = 'jeu_de_donnee'
+        verbose_name = 'Jeu De Donnée'
+        verbose_name_plural = 'Jeux De Données'
+
 
 
 class Ressource(models.Model):
     
     idRessource = models.AutoField(primary_key=True)
-    jeu_de_donnée = models.ForeignKey('Jeu_De_Donnée', on_delete=models.CASCADE)
-    date_création = models.DateTimeField(null=True, blank=True)
+    jeu_de_donnee = models.ForeignKey('Jeu_De_Donnee', on_delete=models.CASCADE,verbose_name='jeu de donnée')
+    date_creation = models.DateTimeField(verbose_name='date de création',null=True, blank=True)
     description = models.TextField(2000,blank=True,null=True,)
     format_ressource = models.CharField(max_length=50,blank=True)
-    dernière_modification = models.DateTimeField(null=True, blank=True)
+    derniere_modification = models.DateTimeField(verbose_name='date de dernière modification',null=True, blank=True)
     nom = models.CharField(max_length=500,blank=True,null=True,)
     type_ressource = models.CharField(max_length=100,blank=True,null=True,)
     url  = models.CharField(max_length=500,blank=True,null=True,)
@@ -36,16 +42,21 @@ class Ressource(models.Model):
         return self.nom
     
 
-class Mot_Clé(models.Model):
+class Mot_Cle(models.Model):
 
-    idMotClé = models.AutoField(primary_key=True)
-    jeu_de_donnée = models.ForeignKey('Jeu_De_Donnée', on_delete=models.CASCADE)
+    idMotCle = models.AutoField(verbose_name='idMotClé',primary_key=True)
+    jeu_de_donnee = models.ForeignKey('Jeu_De_Donnee', on_delete=models.CASCADE,verbose_name='jeu de donnée')
     nom_dAffichage = models.CharField(max_length=100,blank=True,null=True,)
-    mot_clé = models.CharField(max_length=100,blank=True,null=True,)
-    état = models.CharField(max_length=45,blank=True,null=True,)
+    mot_cle = models.CharField('mot-clé',max_length=100,blank=True,null=True,)
+    etat = models.CharField('état',max_length=45,blank=True,null=True,)
 
     def __str__(self):
         return self.mot_clé
+    
+    class Meta:
+        db_table = 'mot_cle'
+        verbose_name = 'Mot-Clé'
+        verbose_name_plural = 'Mots-Clés'
     
 
 class Organisation(models.Model):
@@ -54,16 +65,21 @@ class Organisation(models.Model):
     nom = models.CharField(max_length=500,blank=True,null=True,)
     titre = models.CharField(max_length=500,blank=True,null=True,)
     statut_dApprobation = models.CharField(max_length=45,blank=True,null=True,)
-    état = models.CharField(max_length=45,blank=True,null=True,)
+    etat = models.CharField('état',max_length=45,blank=True,null=True,)
    
     def __str__(self):
         return self.nom
+    
+    class Meta:
+        db_table = 'organisation'
+        verbose_name = 'Organisation'
+        verbose_name_plural = 'Organisations'
     
 
 class Group(models.Model):
 
     idGroupe = models.AutoField(primary_key=True)
-    jeu_de_donnée = models.ForeignKey('Jeu_De_Donnée', on_delete=models.CASCADE)
+    jeu_de_donnee = models.ForeignKey('Jeu_De_Donnee', on_delete=models.CASCADE)
     description = models.TextField(1000,blank=True,null=True,)
     nom = models.CharField(max_length=500,blank=True,null=True,)
     titre = models.CharField(max_length=500,blank=True,null=True,)
@@ -71,6 +87,12 @@ class Group(models.Model):
     def __str__(self):
         return self.nom
     
+    class Meta:
+        db_table = 'group'
+        verbose_name = 'Groupe'
+        verbose_name_plural = 'Groupes'
+
+
 class ConfigMoisson(models.Model):
     sourceAPI = (
 
@@ -90,3 +112,8 @@ class ConfigMoisson(models.Model):
 
     def __str__(self):
         return f"{self.nom} - {self.source}"
+    
+    class Meta:
+        db_table = 'config_moisson'
+        verbose_name = 'Configuration de Moissonnage'
+        verbose_name_plural = 'Configurations de Moissonnage'

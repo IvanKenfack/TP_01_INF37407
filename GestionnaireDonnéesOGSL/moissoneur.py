@@ -10,7 +10,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'GestionnaireDonnéesOGSL.settin
 django.setup()
 
 # Importation des modèles Django après la configuration de Django pour éviter les erreurs d'importation
-from catalogueDonnées.models import Jeu_De_Donnée, Ressource, Mot_Clé, Organisation, Group
+from catalogueDonnées.models import Jeu_De_Donnee, Ressource, Mot_Cle, Organisation, Group
 from django.utils.dateparse import parse_datetime
 from django.utils.timezone import make_aware,is_naive
 
@@ -119,7 +119,7 @@ def parsageDateCKAN(dateString):
 def stockageJeuDeDonnée():
 
     jeuDeDonnées = moissoneurJeuDeDonnées(
-    source=sourceAPI["OpenGouv"],
+    source=sourceAPI["DonneesQuebec"],
     mot_clé="fleuve Saint-Laurent"
     )
 
@@ -134,33 +134,33 @@ def stockageJeuDeDonnée():
             nom=(jeuDeDonnée.get("organization") or {}).get("name",""),
             titre=(jeuDeDonnée.get("organization") or {}).get("title",""),
             statut_dApprobation=(jeuDeDonnée.get("organization") or {}).get("approval_status",""),
-            état=(jeuDeDonnée.get("organization") or {}).get("state",""),
+            etat=(jeuDeDonnée.get("organization") or {}).get("state",""),
         # [0] pour obtenir l'instance créée uniquement
         )[0]
 
-        j = Jeu_De_Donnée.objects.create(
+        j = Jeu_De_Donnee.objects.create(
             organisation=org,
             nom=jeuDeDonnée.get("name",""),
             auteur=jeuDeDonnée.get("author",""),
-            date_création_métadonnées=parsageDateCKAN(jeuDeDonnée.get("metadata_created","")),
-            date_création=parsageDateCKAN(jeuDeDonnée.get("metadata_created","")),
+            date_creation_metadonnees=parsageDateCKAN(jeuDeDonnée.get("metadata_created","")),
+            date_creation=parsageDateCKAN(jeuDeDonnée.get("metadata_created","")),
             nombre_ressources=jeuDeDonnée.get("num_resources",0),
-            nombre_mots_clés=jeuDeDonnée.get("num_tags",0),
+            nombre_mots_cles=jeuDeDonnée.get("num_tags",0),
             email_auteur=jeuDeDonnée.get("author_email",""),
             url_licence=jeuDeDonnée.get("license_url",""),
         )
         ressources_data = jeuDeDonnée.get("resources", [])
         ressources_objs = [
             Ressource(
-                jeu_de_donnée=j,
+                jeu_de_donnee=j,
                 nom=rdata.get("name",""),
                 description=rdata.get("description",""),
                 format_ressource=rdata.get("format",""),
                 url=rdata.get("url",""),
                 taille_ressource=rdata.get("size",0),
                 type_ressource=rdata.get("resource_type",""),
-                date_création=parsageDateCKAN(rdata.get("created", None)),
-                dernière_modification=parsageDateCKAN(rdata.get("last_modified", None)),
+                date_creation=parsageDateCKAN(rdata.get("created", None)),
+                derniere_modification=parsageDateCKAN(rdata.get("last_modified", None)),
             )
             for rdata in ressources_data
         ]
@@ -171,21 +171,21 @@ def stockageJeuDeDonnée():
 
         motsClés = jeuDeDonnée.get("tags", [])
         mots_objs = [
-            Mot_Clé(
-                jeu_de_donnée=j,
+            Mot_Cle(
+                jeu_de_donnee=j,
                 nom_dAffichage=motClé.get("display_name",""),
-                mot_clé=motClé.get("name",""),
-                état=motClé.get("state",""), 
+                mot_cle=motClé.get("name",""),
+                etat=motClé.get("state",""), 
             ) 
             for motClé in motsClés
         ]
         if mots_objs:
-            Mot_Clé.objects.bulk_create(mots_objs, batch_size=100)
+            Mot_Cle.objects.bulk_create(mots_objs, batch_size=100)
 
         groups = jeuDeDonnée.get("groups", [])
         groups_objs = [
             Group(
-                jeu_de_donnée=j,
+                jeu_de_donnee=j,
                 nom=group.get("name",""),
                 titre=group.get("title",""),
                 description=group.get("description",""),
