@@ -18,14 +18,14 @@ schema_view = get_schema_view(
 )
 
 urlpatterns = [
-    path('jeuxdedonnées/', JeuDeDonnéeListAPIView.as_view(), name='list-jeuxdedonnées'),
+    path('jeux/', JeuDeDonnéeListAPIView.as_view(), name='list-jeuxdedonnées'),
     path('ressources/', RessourceListAPIView.as_view(), name='list-ressources'),
-    path('motsclés/', MotCléListAPIView.as_view(), name='list-motsclés'),
+    path('motscles/', MotCléListAPIView.as_view(), name='list-motsclés'),
     path('organisations/', OrganisationListAPIView.as_view(), name='list-organisations'),
     path('groups/', GroupListAPIView.as_view(), name='list-groups'),
-    path('jeudedonnée/<int:Id>/', JeuDeDonnéeDetailAPIView.as_view(), name='jeudedonnée-detail'),
+    path('jeu/<int:Id>/', JeuDeDonnéeDetailAPIView.as_view(), name='jeudedonnée-detail'),
     path('ressource/<int:Id>/', RessourceDetailAPIView.as_view(), name='ressource-detail'),
-    path('motclé/<int:Id>/', MotCléDetailAPIView.as_view(), name='motclé-detail'),
+    path('motcle/<int:Id>/', MotCléDetailAPIView.as_view(), name='motclé-detail'),
     path('organisation/<int:Id>/', OrganisationDetailAPIView.as_view(), name='organisation-detail'),
     path('group/<int:Id>/', GroupDetailAPIView.as_view(), name='group-detail'),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
