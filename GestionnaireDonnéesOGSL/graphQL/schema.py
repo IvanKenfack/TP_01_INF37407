@@ -1,6 +1,7 @@
 from graphene_django import DjangoObjectType
 from catalogueDonnées.models import Jeu_De_Donnee, Ressource, Mot_Cle, Organisation, Group
 import graphene
+import graphql_jwt
 
 class JeuDeDonneeType(DjangoObjectType):
     class Meta:
@@ -37,6 +38,9 @@ class Query(graphene.ObjectType):
     jeuDeDonneeById = graphene.Field(JeuDeDonneeType, id=graphene.Int(required=True))
 
     def resolve_all_jeux_de_donnees(root, info):
+        user = info.context.user
+        if not user.is_authenticated:
+            raise Exception("Authentification requise !")
         return Jeu_De_Donnee.objects.select_related('organisation').prefetch_related(
             'ressource_set', 'mot_cle_set', 'group_set'
         ).all()
@@ -55,10 +59,22 @@ class Query(graphene.ObjectType):
     
     def resolve_jeuDeDonneeById(root, info, id):
         try:
+            user = info.context.user
+            if not user.is_authenticated:
+                raise Exception("Authentification requise !")
             return Jeu_De_Donnee.objects.select_related('organisation').prefetch_related(
                 'ressource_set', 'mot_cle_set', 'group_set'
             ).get(pk=id)
         except Jeu_De_Donnee.DoesNotExist:
             return None
+        
+
+class ObtainJSONWebToken(graphql_jwt.ObtainJSONWebToken):
+    pass
+
+class Mutation(graphene.ObjectType):
+    token_auth = ObtainJSONWebToken.Field()
+    verify_token = graphql_jwt.Verify.Field()
+    refresh_token = graphql_jwt.Refresh.Field()
     
-schema = graphene.Schema(query=Query)
+schema = graphene.Schema(query=Query, mutation=Mutation)
