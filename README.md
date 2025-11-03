@@ -1,4 +1,4 @@
-# TP_01 INF37407 – Moissoneur et gestionnaire de données OGSL (Observatoire Globale du Saint Laurent)
+# Moissoneur et gestionnaire de données OGSL (Observatoire Globale du Saint Laurent)
 
 Travail pratique 01 dans le cadre du cours Technologies de l'inforoute (INF 37407), Automne 2025, UQAR.
 Ce travail consiste à développer une plateforme serveur (back-end) pour la collecte et la gestion de données issues du site de données ouvertes du gouvernement du Quebec (www.donneesquebec.ca)
