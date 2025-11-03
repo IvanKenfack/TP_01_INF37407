@@ -6,14 +6,29 @@ const thematiqueLabels = JSON.parse(context.dataset.labels)
 const thematiqueValues = JSON.parse(context.dataset.values)
 const _thematiqueValues = thematiqueValues.map(item=> item.total)
 
+
+const nombreParSource = []
+
+
+async function loadData() {
+  const borealis = await fetch('https://borealisdata.ca/api/search?q=fleuve-saint-laurent&type=dataset').then(r => r.json());
+  const canwin   = await fetch('/stats/canwin').then(r => r.json());
+  const dq       = await fetch('/stats/dq').then(r => r.json());
+
+  nombreParSource.push(
+    borealis.data.total_count,
+    canwin.result.count,
+    dq.result.count,
+    678
+  );
 const myChart = new Chart(context, {
     type: 'bar',
 
     data: {
-        labels: ['OpenGov','DonnéesQuébec','Boréalis','CanWin'],
+        labels: ['Boréalis','CanWin','DonnéesQuébec', 'OpenGov'],
         datasets: [{
             label: 'Nombre de jeux moissonnés par catalogue',
-            data: _thematiqueValues,
+            data: nombreParSource,
             backgroundColor: [
                 'rgba(255, 99, 132, 0.2)',
                 'rgba(54, 162, 235, 0.2)',
@@ -44,6 +59,12 @@ const myChart = new Chart(context, {
         responsive: true,
     }
 });
+
+}
+
+loadData();
+
+
 
 const myChart2 = new Chart(context2, {
     type: 'doughnut',       

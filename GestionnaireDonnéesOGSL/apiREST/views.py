@@ -3,10 +3,12 @@ from rest_framework.views import APIView, status, Response
 from catalogueDonnées.models import Jeu_De_Donnee, Ressource, Mot_Cle, Organisation, Group
 from .serializers import JeuDeDonnéeSerializer, RessourceSerializer, MotCléSerializer, OrganisationSerializer, GroupSerializer
 from drf_yasg.utils import swagger_auto_schema
+from rest_framework.permissions import IsAuthenticated
 
 
 
 class JeuDeDonnéeListAPIView(APIView):
+    permission_classes = [IsAuthenticated]
     @swagger_auto_schema(responses={200: JeuDeDonnéeSerializer(many=True)})
     def get(self, request):
         # précharger l'organisation (FK) et préfetcher les relations "reverse" vers Ressource, Mot_Cle et Group
@@ -19,6 +21,7 @@ class JeuDeDonnéeListAPIView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class JeuDeDonnéeDetailAPIView(APIView):
+    permission_classes = [IsAuthenticated]
     @swagger_auto_schema(responses={200: JeuDeDonnéeSerializer()})
     def get(self, request, Id):
         try:

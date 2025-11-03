@@ -41,10 +41,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'catalogueDonnées.apps.CataloguedonnéesConfig',
     'rest_framework',
+    'rest_framework_simplejwt',
     'apiREST.apps.ApirestConfig',
     'drf_yasg',
     'graphene_django',
     'statistiques.apps.StatistiquesConfig',
+
 ]
 
 MIDDLEWARE = [
@@ -149,6 +151,23 @@ JAZZMIN_SETTINGS = {
 }
 
 GRAPHENE = {
-    "SCHEMA": "graphQL.schema.schema",  
+    "SCHEMA": "graphQL.schema.schema", 
+    'MIDDLEWARE': [
+        'graphql_jwt.middleware.JSONWebTokenMiddleware',
+    ], 
+}
+
+AUTHENTICATION_BACKENDS = [
+    'graphql_jwt.backends.JSONWebTokenBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
 }
 
