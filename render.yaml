@@ -1,7 +1,7 @@
 databases:
   - name: GestionnaireDonnéesOGSLdb
     plan: free
-    databaseName: GestionnaireDonnéesOGSLdb
+    databaseName: GestionnaireDonnéesdb
     user: admin
 
 services:
