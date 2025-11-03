@@ -1,8 +1,8 @@
 databases:
   - name: GestionnaireDonnéesOGSLdb
     plan: free
-    databaseName: GestionnaireDonnéesOGSL
-    user: GestionnaireDonnéesOGSL
+    databaseName: GestionnaireDonnéesOGSLdb
+    user: admin
 
 services:
   - type: web
@@ -14,7 +14,7 @@ services:
     envVars:
       - key: DATABASE_URL
         fromDatabase:
-          name: mysitedb
+          name: GestionnaireDonnéesOGSLdb
           property: connectionString
       - key: SECRET_KEY
         generateValue: true
