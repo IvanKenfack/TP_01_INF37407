@@ -84,7 +84,7 @@ WSGI_APPLICATION = 'GestionnaireDonnéesOGSL.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    "default": dj_database_url.config({
+    "default": {
         "ENGINE": "django.db.backends.mysql",
         "NAME": "bd_catalogueogsl",
         "USER": "root",
@@ -94,7 +94,7 @@ DATABASES = {
         "OPTIONS": {
             "charset": "utf8mb4",
         },
-    })
+    }
 }
 
 
