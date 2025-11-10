@@ -33,6 +33,6 @@ urlpatterns = [
     path('organisation/<int:Id>/', OrganisationDetailAPIView.as_view(), name='organisation-detail'),
     path('group/<int:Id>/', GroupDetailAPIView.as_view(), name='group-detail'),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
-     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]

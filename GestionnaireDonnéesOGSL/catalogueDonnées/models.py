@@ -51,7 +51,7 @@ class Mot_Cle(models.Model):
     etat = models.CharField('état',max_length=45,blank=True,null=True,)
 
     def __str__(self):
-        return self.mot_clé
+        return self.mot_cle
     
     class Meta:
         db_table = 'mot_cle'
