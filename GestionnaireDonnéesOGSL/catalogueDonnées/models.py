@@ -51,11 +51,7 @@ class Mot_Cle(models.Model):
     etat = models.CharField('état',max_length=45,blank=True,null=True,)
 
     def __str__(self):
-<<<<<<< HEAD
         return self.mot_cle
-=======
-        return self.mot_clé
->>>>>>> be1f1f51ab058fac5059f89e68eba8b3149333f5
     
     class Meta:
         db_table = 'mot_cle'
