@@ -33,6 +33,10 @@ urlpatterns = [
     path('organisation/<int:Id>/', OrganisationDetailAPIView.as_view(), name='organisation-detail'),
     path('group/<int:Id>/', GroupDetailAPIView.as_view(), name='group-detail'),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+<<<<<<< HEAD
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+=======
+     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+>>>>>>> be1f1f51ab058fac5059f89e68eba8b3149333f5
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]

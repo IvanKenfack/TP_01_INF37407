@@ -1,6 +1,10 @@
 from django.contrib import admin
 from .models import Jeu_De_Donnee, Ressource, Mot_Cle, Organisation, Group, ConfigMoisson
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> be1f1f51ab058fac5059f89e68eba8b3149333f5
 class Jeu_De_DonnéeAdmin(admin.ModelAdmin):
     list_display = ('nom','auteur','date_creation','nombre_ressources','nombre_mots_cles','email_auteur','url_licence','organisation')
     list_editable = ('auteur','nombre_mots_cles','email_auteur','url_licence',)
