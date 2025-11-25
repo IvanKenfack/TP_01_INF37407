@@ -1,0 +1,16 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls %}
+
+{% block object-tools-items %}
+
+{{ block.super }}
+
+    <li>
+        <a href="{% url 'admin:lancer_vue_moisson' original.pk %}"
+           class="btn btn-high btn-success mt-3 d-flex justify-content-center"
+           style="background-color: #3340d7e2; color: white; padding: 8px 12px; text-decoration: none; border-radius: 4px;" >
+           Lancer le moissonage
+        </a>
+    </li>
+
+{% endblock %}
