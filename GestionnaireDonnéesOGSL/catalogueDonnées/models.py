@@ -9,10 +9,10 @@ class Jeu_De_Donnee(models.Model):
     auteur = models.CharField(max_length=500, null=True,blank=True)
     date_creation = models.DateTimeField(verbose_name='date de création',null=True, blank=True)
     email_auteur = models.CharField(max_length=500, blank=True,null=True,)
-    url_licence = models.CharField(max_length=500,blank=True,null=True,)
+    url_licence = models.CharField(max_length=500,blank=True,null=True,verbose_name='Pour le réferencement')
     date_creation_metadonnees = models.DateTimeField(verbose_name='date de création des métadonnées',null=True,blank=True)
     nom = models.CharField(max_length=500,blank=True,null=True,)
-    nombre_ressources = models.IntegerField(null=True,blank=True)
+    nombre_ressources = models.IntegerField(null=True,blank=True,verbose_name='nombre de ressources')
     nombre_mots_cles = models.IntegerField(verbose_name='nombre de mots clés',null=True,blank=True)
 
     def __str__(self):
@@ -96,10 +96,10 @@ class Group(models.Model):
 class ConfigMoisson(models.Model):
     sourceAPI = (
 
-        ("DonneesQuebec","https://www.donneesquebec.ca/recherche/api/3/action/package_search"),
-        ("CanWIN","https://canwin-datahub.ad.umanitoba.ca/data/api/3/action/package_search"),
-        ("OpenGouv","https://open.canada.ca/data/api/action/package_search"),
-        ("Borealis" , "https://borealisdata.ca/api/search"),
+        ("https://www.donneesquebec.ca/recherche/api/3/action/package_search","DonneesQuebec"),
+        ("https://canwin-datahub.ad.umanitoba.ca/data/api/3/action/package_search","CanWIN"),
+        ("https://open.canada.ca/data/api/action/package_search","OpenGouv"),
+        ("https://borealisdata.ca/api/search","Borealis"),
 
     )
 
@@ -111,9 +111,24 @@ class ConfigMoisson(models.Model):
     dernier_lancement = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.nom} - {self.source}"
+        return f"{self.nom} - {self.source} - {self.source}"
     
     class Meta:
         db_table = 'config_moisson'
         verbose_name = 'Configuration de Moissonnage'
         verbose_name_plural = 'Configurations de Moissonnage'
+
+class LogMoissonage(models.Model):
+    configuration = models.ForeignKey(ConfigMoisson, on_delete=models.PROTECT )
+    commence = models.DateTimeField(auto_now_add=True,verbose_name='Commencé à')
+    complete = models.DateTimeField(null=True, blank=True, verbose_name='Completé à')
+    statut = models.CharField(max_length=20, choices=[
+        ('running','En cours'),
+        ('Succès','success'),
+        ('Erreur','error'),
+    ])
+    records_harvested = models.IntegerField(default=0,verbose_name='Données moissonnées')
+    error_message = models.TextField(null=True,blank=True,verbose_name="Message d'érreur")
+
+    class Meta:
+        ordering = ['-commence']
