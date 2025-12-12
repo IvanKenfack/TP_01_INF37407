@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+from datetime import timedelta
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -46,6 +47,7 @@ INSTALLED_APPS = [
     'drf_yasg',
     'graphene_django',
     'statistiques.apps.StatistiquesConfig',
+    'django_filters',
 
 ]
 
@@ -175,5 +177,14 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 10,
 }
 
+SIMPLE_JWT = {
+    #Je définit la durée de validité du jéton d'accès
+    'ACCESS_TOKEN_lIFETIME' : timedelta(minutes=60),
+
+    #Pour limiter le nombre de fois qu'un utilisateur doit se reconnecter, je défini aussi la durée de validité du jéton de rafraîchissement
+    'REFRESH_TOKEN_LIFETIME' : timedelta(days=1),
+}

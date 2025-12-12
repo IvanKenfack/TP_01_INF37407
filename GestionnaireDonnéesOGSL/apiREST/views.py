@@ -1,31 +1,48 @@
 
 from rest_framework.views import APIView, status, Response
+from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.authentication import TokenAuthentication
 from catalogueDonnées.models import Jeu_De_Donnee, Ressource, Mot_Cle, Organisation, Group
-from .serializers import JeuDeDonnéeSerializer, RessourceSerializer, MotCléSerializer, OrganisationSerializer, GroupSerializer
+from .serializers import JeuDeDonnéeSerializer, RessourceSerializer, MotCléSerializer, OrganisationSerializer, GroupSerializer, UserSerializer
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from django.contrib.auth import login, logout
+from rest_framework_simplejwt.tokens import RefreshToken, Token
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate
+from rest_framework.generics import ListAPIView
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, viewsets
 
 
 
-class JeuDeDonnéeListAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-    @swagger_auto_schema(responses={200: JeuDeDonnéeSerializer(many=True)})
-    def get(self, request):
-        # précharger l'organisation (FK) et préfetcher les relations "reverse" vers Ressource, Mot_Cle et Group
-        jeux_de_données = Jeu_De_Donnee.objects.select_related('organisation').prefetch_related(
-            'ressource_set', 'mot_cle_set', 'group_set'
-        ).all()
 
-        serializer = JeuDeDonnéeSerializer(jeux_de_données, many=True)
+class JeuDeDonnéeListAPIView(ListAPIView):
+    permission_classes = [AllowAny]
+    queryset = Jeu_De_Donnee.objects.select_related('organisation').prefetch_related(
+        'ressource_set', 'mot_cle_set', 'group_set')
+    serializer_class = JeuDeDonnéeSerializer
+    pagination_class = LimitOffsetPagination
+    authentication_classes = [TokenAuthentication,]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filterset_fields = {
+        'organisation__nom' : ['exact'],
+        'auteur' : ['exact', 'icontains'],
+        'date_creation_metadonnees' : ['gte', 'lte'],
+        'nombre_ressources' : ['gte', 'lte'],
+    }
+        
+    search_fields = ['nom', 'auteur', 'organisation__nom']
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    
 
 class JeuDeDonnéeDetailAPIView(APIView):
     permission_classes = [IsAuthenticated]
     @swagger_auto_schema(responses={200: JeuDeDonnéeSerializer()})
     def get(self, request, Id):
         try:
-            jeu_de_donnée = Jeu_De_Donnee.objects.select_related('organisation').prefetch_related(
+            jeu_de_donnée = Jeu_De_Donnee.objects.distinct.select_related('organisation').prefetch_related(
                 'ressource_set', 'mot_cle_set', 'group_set'
             ).get(pk=Id)
 
@@ -49,6 +66,7 @@ class RessourceListAPIView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
     
 class RessourceDetailAPIView(APIView):
+    permission_classes = [AllowAny]
     def get(self, request, Id):
         try:
             ressource = Ressource.objects.get(pk=Id)
@@ -65,11 +83,17 @@ class RessourceDetailAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-class MotCléListAPIView(APIView):
-    def get(self, request):
-        mots_clés = Mot_Cle.objects.all()
-        serializer = MotCléSerializer(mots_clés, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+class MotCléListAPIView(ListAPIView):
+    permission_classes = [AllowAny]
+    queryset = Mot_Cle.objects.distinct()
+    serializer_class = MotCléSerializer
+    pagination_class = LimitOffsetPagination
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filterset_fields = {
+        'mot_cle' : ['exact'],
+        'jeu_de_donnee__nom' : ['exact', 'icontains'],
+    }
+    search_fields = ['mot_cle', 'nom_dAffichage']
     
 class MotCléDetailAPIView(APIView):
     def get(self, request, Id):
@@ -135,3 +159,68 @@ class GroupDetailAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class UserInscriptionAPIView(APIView):
+    permission_classes = [AllowAny]
+    @swagger_auto_schema(request_body=UserSerializer, responses={201: UserSerializer()})
+
+    def post(self, request):
+        serializer = UserSerializer(data=request.data)
+
+        if serializer.is_valid():
+            user = serializer.save()
+            Token.objects.create(user=user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def get(self, request,Id):
+        user = User.objects.get(pk=Id)
+        serializer = UserSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK) 
+    
+class LoginAPIView(APIView):
+    permission_classes = [AllowAny]
+    def post(self, request):
+        username = request.data.get('username')
+        password = request.data.get('password')
+
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response({'error': 'Identifiants invalides.'}, status=status.HTTP_401_UNAUTHORIZED)
+        
+
+class LogoutAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self, request):
+        logout(request)
+        #Logique de redirection
+
+        return Response({'message': 'Déconnexion réussie.'}, status=status.HTTP_200_OK)
+    
+
+class ProfileManagementAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request):
+        user = request.user
+        serializer = UserSerializer(user, data=request.data, partial=True)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class JeuDeDonneeInfoViewset(viewsets.ViewSet):
+    permission_classes = [AllowAny]
+    def list(self, request):
+        queryset = Jeu_De_Donnee.objects.all()
+        serializer = JeuDeDonnéeSerializer(queryset, many=True)
+        return Response(serializer.data)
