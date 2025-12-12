@@ -1,6 +1,6 @@
 from django.urls import path
 from rest_framework import permissions
-from .views import JeuDeDonnéeListAPIView, RessourceListAPIView, MotCléListAPIView, OrganisationListAPIView, GroupListAPIView, JeuDeDonnéeDetailAPIView, RessourceDetailAPIView, MotCléDetailAPIView, OrganisationDetailAPIView, GroupDetailAPIView
+from .views import UserInscriptionAPIView,ProfileManagementAPIView,LoginAPIView,LogoutAPIView,JeuDeDonnéeListAPIView, RessourceListAPIView, MotCléListAPIView, OrganisationListAPIView, GroupListAPIView, JeuDeDonnéeDetailAPIView, RessourceDetailAPIView, MotCléDetailAPIView, OrganisationDetailAPIView, GroupDetailAPIView
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from rest_framework_simplejwt.views import (
@@ -22,17 +22,24 @@ schema_view = get_schema_view(
 )
 
 urlpatterns = [
-    path('jeux/', JeuDeDonnéeListAPIView.as_view(), name='list-jeuxdedonnées'),
-    path('ressources/', RessourceListAPIView.as_view(), name='list-ressources'),
-    path('motscles/', MotCléListAPIView.as_view(), name='list-motsclés'),
-    path('organisations/', OrganisationListAPIView.as_view(), name='list-organisations'),
-    path('groups/', GroupListAPIView.as_view(), name='list-groups'),
-    path('jeu/<int:Id>/', JeuDeDonnéeDetailAPIView.as_view(), name='jeudedonnée-detail'),
-    path('ressource/<int:Id>/', RessourceDetailAPIView.as_view(), name='ressource-detail'),
-    path('motcle/<int:Id>/', MotCléDetailAPIView.as_view(), name='motclé-detail'),
-    path('organisation/<int:Id>/', OrganisationDetailAPIView.as_view(), name='organisation-detail'),
-    path('group/<int:Id>/', GroupDetailAPIView.as_view(), name='group-detail'),
-    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
-    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    
+    path('jeux/',                   JeuDeDonnéeListAPIView.as_view(),                   name='list-jeuxdedonnées'),
+    path('ressources/',             RessourceListAPIView.as_view(),                     name='list-ressources'),
+    path('motscles/',               MotCléListAPIView.as_view(),                        name='list-motsclés'),
+    path('organisations/',          OrganisationListAPIView.as_view(),                  name='list-organisations'),
+    path('groups/',                 GroupListAPIView.as_view(),                         name='list-groups'),
+    path('jeu/<int:Id>/',           JeuDeDonnéeDetailAPIView.as_view(),                 name='jeudedonnée-detail'),
+    path('ressource/<int:Id>/',     RessourceDetailAPIView.as_view(),                   name='ressource-detail'),
+    path('motcle/<int:Id>/',        MotCléDetailAPIView.as_view(),                      name='motclé-detail'),
+    path('organisation/<int:Id>/',  OrganisationDetailAPIView.as_view(),                name='organisation-detail'),
+    path('group/<int:Id>/',         GroupDetailAPIView.as_view(),                       name='group-detail'),
+    path('swagger/',                schema_view.with_ui('swagger', cache_timeout=0),    name='schema-swagger-ui'),
+    path('token/',                  TokenObtainPairView.as_view(),                      name='token_obtain_pair'),
+    path('token/refresh/',          TokenRefreshView.as_view(),                         name='token_refresh'),
+    path('inscription/',            UserInscriptionAPIView.as_view(),                   name='user_inscription'),
+    path('utilisateur/<int:Id>/',   UserInscriptionAPIView.as_view(),                   name='utilisateur-detail'),
+    path('login/',                  LoginAPIView.as_view(),                             name='user_login'),
+    path('logout/',                 LogoutAPIView.as_view(),                            name='user_logout'),
+    path('manage_profile/',         ProfileManagementAPIView.as_view(),                 name='manage_profile'),
+    
 ]
