@@ -48,14 +48,16 @@ INSTALLED_APPS = [
     'graphene_django',
     'statistiques.apps.StatistiquesConfig',
     'django_filters',
+    'corsheaders',
 
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -188,3 +190,9 @@ SIMPLE_JWT = {
     #Pour limiter le nombre de fois qu'un utilisateur doit se reconnecter, je défini aussi la durée de validité du jéton de rafraîchissement
     'REFRESH_TOKEN_LIFETIME' : timedelta(days=1),
 }
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+]
+
+CORS_ALLOW_ALL_ORIGINS = True

@@ -1,6 +1,6 @@
 from django.urls import path
 from rest_framework import permissions
-from .views import UserInscriptionAPIView,ProfileManagementAPIView,LoginAPIView,LogoutAPIView,JeuDeDonnéeListAPIView, RessourceListAPIView, MotCléListAPIView, OrganisationListAPIView, GroupListAPIView, JeuDeDonnéeDetailAPIView, RessourceDetailAPIView, MotCléDetailAPIView, OrganisationDetailAPIView, GroupDetailAPIView
+from .views import TablesAPIView, UserInscriptionAPIView,ProfileManagementAPIView,LoginAPIView,LogoutAPIView,JeuDeDonnéeListAPIView, RessourceListAPIView, MotCléListAPIView, OrganisationListAPIView, GroupListAPIView, JeuDeDonnéeDetailAPIView, RessourceDetailAPIView, MotCléDetailAPIView, OrganisationDetailAPIView, GroupDetailAPIView
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from rest_framework_simplejwt.views import (
@@ -37,9 +37,9 @@ urlpatterns = [
     path('token/',                  TokenObtainPairView.as_view(),                      name='token_obtain_pair'),
     path('token/refresh/',          TokenRefreshView.as_view(),                         name='token_refresh'),
     path('inscription/',            UserInscriptionAPIView.as_view(),                   name='user_inscription'),
-    path('utilisateur/<int:Id>/',   UserInscriptionAPIView.as_view(),                   name='utilisateur-detail'),
+    path('user/<str:username>/',   UserInscriptionAPIView.as_view(),                   name='utilisateur-detail'),
     path('login/',                  LoginAPIView.as_view(),                             name='user_login'),
     path('logout/',                 LogoutAPIView.as_view(),                            name='user_logout'),
     path('manage_profile/',         ProfileManagementAPIView.as_view(),                 name='manage_profile'),
-    
+    path('tables/',                 TablesAPIView.as_view(),                            name='list_tables'),
 ]

@@ -1,4 +1,5 @@
 
+from django.db import connection
 from rest_framework.views import APIView, status, Response
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.authentication import TokenAuthentication
@@ -168,13 +169,12 @@ class UserInscriptionAPIView(APIView):
 
         if serializer.is_valid():
             user = serializer.save()
-            Token.objects.create(user=user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-    def get(self, request,Id):
-        user = User.objects.get(pk=Id)
+
+    def get(self, request, username):
+        user = User.objects.get(username=username)
         serializer = UserSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK) 
     
@@ -191,6 +191,7 @@ class LoginAPIView(APIView):
             return Response({
                 'refresh': str(refresh),
                 'access': str(refresh.access_token),
+                'user': UserSerializer(user).data
             }, status=status.HTTP_200_OK)
         else:
             return Response({'error': 'Identifiants invalides.'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -200,7 +201,6 @@ class LogoutAPIView(APIView):
     permission_classes = [IsAuthenticated]
     def post(self, request):
         logout(request)
-        #Logique de redirection
 
         return Response({'message': 'Déconnexion réussie.'}, status=status.HTTP_200_OK)
     
@@ -224,3 +224,12 @@ class JeuDeDonneeInfoViewset(viewsets.ViewSet):
         queryset = Jeu_De_Donnee.objects.all()
         serializer = JeuDeDonnéeSerializer(queryset, many=True)
         return Response(serializer.data)
+    
+class TablesAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        with connection.cursor() as cursor:
+            tables = [t for t in connection.introspection.table_names(cursor)
+                      if not t.startswith('auth_') and not t.startswith('django_')]
+        return Response(tables, status=status.HTTP_200_OK)
